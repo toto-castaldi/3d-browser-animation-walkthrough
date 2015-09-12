@@ -1,4 +1,4 @@
-# 3d-browser-animation-walkthrough
+# 3d-browser-game-walkthrough
 
 ### after clone
 
