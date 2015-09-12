@@ -17,11 +17,13 @@
   document.body.appendChild(renderer.domElement);
 
   // ******** START CODING ON THE NEXT LINE ********
-  var shape = new THREE.SphereGeometry(100);
+  var shape = new THREE.CubeGeometry(100, 100, 100);
   var cover = new THREE.MeshNormalMaterial();
-  var ball = new THREE.Mesh(shape, cover);
+  var mesh = new THREE.Mesh(shape, cover);
 
-  scene.add(ball);
+  scene.add(mesh);
+
+  mesh.rotation.set(0.5,0.5,0);
 
   // Now, show what the camera sees on the screen:
   renderer.render(scene, camera);
