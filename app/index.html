@@ -12,10 +12,21 @@
       new THREE.SphereGeometry(150),
       new THREE.MeshBasicMaterial({ color : 0x22BB22})
     );
+    var boundary = new THREE.Mesh(
+      new THREE.CircleGeometry(300),
+      new THREE.MeshNormalMaterial()
+    );
     top.position.y = 175;
     trunk.add(top);
 
     trunk.position.set(x, -75, z);
+
+    boundary.position.y = -100;
+    boundary.rotation.x = - Math.PI/2;
+    trunk.add(boundary);
+
+    notAllowed.push(boundary);
+
     scene.add(trunk);
   };
 
@@ -35,8 +46,9 @@
   document.body.appendChild(renderer.domElement);
 
   // ******** START CODING ON THE NEXT LINE ********
+  var notAllowed = [];
+
   var marker = new THREE.Object3D();
-  scene.add(marker);
 
   var cover = new THREE.MeshNormalMaterial();
   var body = new THREE.SphereGeometry(100);
@@ -53,12 +65,12 @@
   var isMovingForward = false;
   var isMovingBack = false;
 
-
   rightHand.position.set(150,0,0);
   leftHand.position.set(-150,0,0);
   rightFoot.position.set(75,-125,0);
   leftFoot.position.set(-75,-125,0);
 
+  scene.add(marker);
   marker.add(avatar);
   marker.add(camera);
   avatar.add(rightHand);
@@ -121,6 +133,14 @@
     renderer.render(scene, camera);
   };
 
+  function detectCollisions() {
+    var vector = new THREE.Vector3(0, -1, 0);
+    var ray = new THREE.Ray(marker.position, vector);
+    var intersections = ray.intersectObjects(notAllowed);
+    if (intersections.length > 0) return true;
+    return false;
+  };
+
   document.addEventListener('keydown', function (event) {
     var code = event.keyCode;
     if (code == 37) {
@@ -138,7 +158,15 @@
     if (code == 40) {
       marker.position.z = marker.position.z + 5; //backward
       isMovingBack = true;
-    } 
+    }
+
+    if (detectCollisions()) {
+      console.log("collision");
+      if (isMovingLeft) marker.position.x = marker.position.x + 5;
+      if (isMovingRight) marker.position.x = marker.position.x - 5;
+      if (isMovingForward) marker.position.z = marker.position.z + 5;
+      if (isMovingBack) marker.position.z = marker.position.z - 5;
+    }
   });
 
   document.addEventListener('keyup', function (event) {
