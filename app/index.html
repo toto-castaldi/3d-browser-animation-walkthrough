@@ -18,50 +18,27 @@
 
   // ******** START CODING ON THE NEXT LINE ********
   var cover = new THREE.MeshNormalMaterial();
+  var body = new THREE.SphereGeometry(100);
+  var hand = new THREE.SphereGeometry(50);
   
-  var pyramidShape = new THREE.CylinderGeometry(1, 100, 100, 4);
-  var sphereShape = new THREE.SphereGeometry(100, 20, 15);
-  var cubeShape = new THREE.CubeGeometry(100, 100, 100);
-  var cylinderShape = new THREE.CylinderGeometry(20, 20, 100);
-  var planeShape = new THREE.PlaneGeometry(100, 100);
-  var torusShape = new THREE.TorusGeometry(100, 25, 8, 25);
+  var avatar = new THREE.Mesh(body, cover);
+  var rightHand = new THREE.Mesh(hand, cover);
+  var leftHand = new THREE.Mesh(hand, cover);
+  var rightFoot = new THREE.Mesh(hand, cover);
+  var leftFoot = new THREE.Mesh(hand, cover);
 
-  var pyramidMesh = new THREE.Mesh(pyramidShape, cover);
-  var sphereMesh = new THREE.Mesh(sphereShape, cover);
-  var cubeMesh = new THREE.Mesh(cubeShape, cover);
-  var cylinderMesh = new THREE.Mesh(cylinderShape, cover);
-  var planeMesh = new THREE.Mesh(planeShape, cover);
-  var torusMesh = new THREE.Mesh(torusShape, cover);
 
-  scene.add(pyramidMesh);
-  scene.add(sphereMesh);
-  scene.add(cubeMesh);
-  scene.add(cylinderMesh);
-  scene.add(planeMesh);
-  scene.add(torusMesh);
+  rightHand.position.set(150,0,0);
+  leftHand.position.set(-150,0,0);
+  rightFoot.position.set(75,-125,0);
+  leftFoot.position.set(-75,-125,0);
 
-  pyramidMesh.position.set(0, 0, 0);
-  sphereMesh.position.set(-200, -200, -100);
-  cubeMesh.position.set(200, 200, 100);
-  cylinderMesh.position.set(0, 200, 100);
-  planeMesh.position.set(200, 0, 100);
-  torusMesh.position.set(-200, 200, 0);
+  scene.add(avatar);
+  avatar.add(rightHand);
+  avatar.add(leftHand);
+  avatar.add(rightFoot);
+  avatar.add(leftFoot);
 
-  var clock = new THREE.Clock();
+  renderer.render(scene, camera);
 
-  function animate() {
-    requestAnimationFrame(animate);
-    var t = clock.getElapsedTime();
-
-    pyramidMesh.rotation.set(t, 2*t, 0);
-    sphereMesh.rotation.set(t, -5*t, t/2);
-    cubeMesh.rotation.set(t, 4*t, 0);
-    cylinderMesh.rotation.set(2*t, 7*t, 0);
-    planeMesh.rotation.set(5*t, 0, 0);
-    torusMesh.rotation.set(-2*t, 0, 0);
-
-    renderer.render(scene, camera);
-  }
-
-  animate();
 </script>
