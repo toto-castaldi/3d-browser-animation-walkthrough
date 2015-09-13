@@ -13,7 +13,7 @@
 
   // This will draw what the camera sees onto the screen:
   var renderer = new THREE.CanvasRenderer();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(window.innerWidth -20, window.innerHeight -20);
   document.body.appendChild(renderer.domElement);
 
   // ******** START CODING ON THE NEXT LINE ********
@@ -39,6 +39,21 @@
   avatar.add(rightFoot);
   avatar.add(leftFoot);
 
-  renderer.render(scene, camera);
+  function animate () {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+  }
+
+  document.addEventListener('keydown', function (event) {
+    var code = event.keyCode;
+    if (code == 37) avatar.position.x = avatar.position.x - 5; //left
+    if (code == 39) avatar.position.x = avatar.position.x + 5; //right
+    if (code == 38) avatar.position.z = avatar.position.z - 5; //forward
+    if (code == 40) avatar.position.z = avatar.position.z + 5; //backward 
+  });
+
+  animate();
+
+
 
 </script>
