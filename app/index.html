@@ -1,5 +1,6 @@
 <body></body>
 <script src="http://gamingJS.com/Three.js"></script>
+<script src="http://gamingJS.com/Tween.js"></script>
 <script src="http://gamingJS.com/ChromeFixes.js"></script>
 <script>
   function makeTreeAt(x, z) {
@@ -34,6 +35,9 @@
   document.body.appendChild(renderer.domElement);
 
   // ******** START CODING ON THE NEXT LINE ********
+  var marker = new THREE.Object3D();
+  scene.add(marker);
+
   var cover = new THREE.MeshNormalMaterial();
   var body = new THREE.SphereGeometry(100);
   var hand = new THREE.SphereGeometry(50);
@@ -55,9 +59,8 @@
   rightFoot.position.set(75,-125,0);
   leftFoot.position.set(-75,-125,0);
 
-  scene.add(avatar);
-
-  avatar.add(camera);
+  marker.add(avatar);
+  marker.add(camera);
   avatar.add(rightHand);
   avatar.add(leftHand);
   avatar.add(rightFoot);
@@ -87,10 +90,33 @@
     }
   };
 
+  function turn () {
+    var direction = 0;
+    if (isMovingForward) direction = Math.PI;
+    if (isMovingBack) direction = 0;
+    if (isMovingLeft) direction = - Math.PI / 2;
+    if (isMovingRight) direction = Math.PI / 2;
+
+    spinAvatar(direction);
+  };
+
+  function spinAvatar(direction) {
+    new TWEEN.
+      Tween({y: avatar.rotation.y}).
+      to({y: direction}, 100).
+      onUpdate(function () {
+        avatar.rotation.y = this.y;
+      }).
+      start();
+  };
+
   function animate () {
     requestAnimationFrame(animate);
 
+    TWEEN.update();
+
     walk();
+    turn();
   
     renderer.render(scene, camera);
   };
@@ -98,19 +124,19 @@
   document.addEventListener('keydown', function (event) {
     var code = event.keyCode;
     if (code == 37) {
-      avatar.position.x = avatar.position.x - 5; //left
+      marker.position.x = marker.position.x - 5; //left
       isMovingLeft = true;
     }
     if (code == 39) {
-      avatar.position.x = avatar.position.x + 5; //right
+      marker.position.x = marker.position.x + 5; //right
       isMovingRight = true;
     }
     if (code == 38) {
-      avatar.position.z = avatar.position.z - 5; //forward
+      marker.position.z = marker.position.z - 5; //forward
       isMovingForward = true;
     }
     if (code == 40) {
-      avatar.position.z = avatar.position.z + 5; //backward
+      marker.position.z = marker.position.z + 5; //backward
       isMovingBack = true;
     } 
   });
