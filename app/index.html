@@ -21,6 +21,8 @@
   // This is where stuff in our game will happen:
   var scene = new THREE.Scene();
 
+  var clock = new THREE.Clock(true);
+
   // This is what sees the stuff:
   var aspect_ratio = window.innerWidth / window.innerHeight;
   var camera = new THREE.PerspectiveCamera(75, aspect_ratio, 1, 10000);
@@ -42,6 +44,11 @@
   var rightFoot = new THREE.Mesh(hand, cover);
   var leftFoot = new THREE.Mesh(hand, cover);
 
+  var isMovingLeft = false;
+  var isMovingRight = false;
+  var isMovingForward = false;
+  var isMovingBack = false;
+
 
   rightHand.position.set(150,0,0);
   leftHand.position.set(-150,0,0);
@@ -61,21 +68,69 @@
   makeTreeAt( 750, -1000);
   makeTreeAt( -750, -1000);
 
+  function isWalking () {
+    return (
+      isMovingLeft ||
+      isMovingRight ||
+      isMovingForward ||
+      isMovingBack
+    );
+  };
+
+  function walk () {
+    if (isWalking()) {
+      var position = Math.sin(clock.getElapsedTime()*5) * 50;
+      rightHand.position.z = position;
+      leftHand.position.z = -position;
+      rightFoot.position.z = -position;
+      leftFoot.position.z = position;
+    }
+  };
+
   function animate () {
     requestAnimationFrame(animate);
+
+    walk();
+  
     renderer.render(scene, camera);
-  }
+  };
 
   document.addEventListener('keydown', function (event) {
     var code = event.keyCode;
-    if (code == 37) avatar.position.x = avatar.position.x - 5; //left
-    if (code == 39) avatar.position.x = avatar.position.x + 5; //right
-    if (code == 38) avatar.position.z = avatar.position.z - 5; //forward
-    if (code == 40) avatar.position.z = avatar.position.z + 5; //backward 
+    if (code == 37) {
+      avatar.position.x = avatar.position.x - 5; //left
+      isMovingLeft = true;
+    }
+    if (code == 39) {
+      avatar.position.x = avatar.position.x + 5; //right
+      isMovingRight = true;
+    }
+    if (code == 38) {
+      avatar.position.z = avatar.position.z - 5; //forward
+      isMovingForward = true;
+    }
+    if (code == 40) {
+      avatar.position.z = avatar.position.z + 5; //backward
+      isMovingBack = true;
+    } 
+  });
+
+  document.addEventListener('keyup', function (event) {
+    var code = event.keyCode;
+    if (code == 37) {
+      isMovingLeft = false;
+    }
+    if (code == 39) {
+      isMovingRight = false;
+    }
+    if (code == 38) {
+      isMovingForward = false;
+    }
+    if (code == 40) {
+      isMovingBack = false;
+    } 
   });
 
   animate();
-
-
 
 </script>
