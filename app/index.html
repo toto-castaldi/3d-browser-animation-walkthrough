@@ -2,6 +2,22 @@
 <script src="http://gamingJS.com/Three.js"></script>
 <script src="http://gamingJS.com/ChromeFixes.js"></script>
 <script>
+  function makeTreeAt(x, z) {
+    var trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(50, 50, 200),
+      new THREE.MeshBasicMaterial({ color : 0xA0522D})
+    );
+    var top = new THREE.Mesh(
+      new THREE.SphereGeometry(150),
+      new THREE.MeshBasicMaterial({ color : 0x22BB22})
+    );
+    top.position.y = 175;
+    trunk.add(top);
+
+    trunk.position.set(x, -75, z);
+    scene.add(trunk);
+  };
+
   // This is where stuff in our game will happen:
   var scene = new THREE.Scene();
 
@@ -9,7 +25,6 @@
   var aspect_ratio = window.innerWidth / window.innerHeight;
   var camera = new THREE.PerspectiveCamera(75, aspect_ratio, 1, 10000);
   camera.position.z = 500;
-  scene.add(camera);
 
   // This will draw what the camera sees onto the screen:
   var renderer = new THREE.CanvasRenderer();
@@ -34,10 +49,17 @@
   leftFoot.position.set(-75,-125,0);
 
   scene.add(avatar);
+
+  avatar.add(camera);
   avatar.add(rightHand);
   avatar.add(leftHand);
   avatar.add(rightFoot);
   avatar.add(leftFoot);
+
+  makeTreeAt( 500, 0);
+  makeTreeAt( -500, 0);
+  makeTreeAt( 750, -1000);
+  makeTreeAt( -750, -1000);
 
   function animate () {
     requestAnimationFrame(animate);
