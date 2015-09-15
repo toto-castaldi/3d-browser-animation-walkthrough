@@ -1,6 +1,8 @@
 <body></body>
 <script src="http://gamingJS.com/Three.js"></script>
 <script src="http://gamingJS.com/Tween.js"></script>
+<script src="http://gamingJS.com/Scoreboard.js"></script>
+<script src="http://gamingJS.com/Sounds.js"></script>
 <script src="http://gamingJS.com/ChromeFixes.js"></script>
 <script>
   function makeTreeAt(x, z) {
@@ -28,6 +30,8 @@
     notAllowed.push(boundary);
 
     scene.add(trunk);
+
+    return top;
   };
 
   // This is where stuff in our game will happen:
@@ -48,6 +52,26 @@
   // ******** START CODING ON THE NEXT LINE ********
   var notAllowed = [];
 
+  var treeWithTreasure;
+
+  var trees = [];
+
+  var scoreboard = new Scoreboard();
+  scoreboard.countdown(45);
+  scoreboard.score();
+  scoreboard.help(
+    'Arrows to move. ' +
+    'Space bar to jump for fruit. ' +
+    'Watch for shaking trees with fruit. ' +
+    'Get near the tree and jump before the fruit is gone!'
+  );
+
+  var gameOver = false;
+  scoreboard.onTimeExpired(function () {
+    scoreboard.message("Game Over !");
+    gameOver = true;
+  });
+
   var marker = new THREE.Object3D();
 
   var cover = new THREE.MeshNormalMaterial();
@@ -65,6 +89,8 @@
   var isMovingForward = false;
   var isMovingBack = false;
 
+  var fruit;
+
   rightHand.position.set(150,0,0);
   leftHand.position.set(-150,0,0);
   rightFoot.position.set(75,-125,0);
@@ -78,10 +104,25 @@
   avatar.add(rightFoot);
   avatar.add(leftFoot);
 
-  makeTreeAt( 500, 0);
-  makeTreeAt( -500, 0);
-  makeTreeAt( 750, -1000);
-  makeTreeAt( -750, -1000);
+  trees.push(makeTreeAt( 500, 0));
+  trees.push(makeTreeAt( -500, 0));
+  trees.push(makeTreeAt( 750, -1000));
+  trees.push(makeTreeAt( -750, -1000));
+
+  function shakeTree() {
+    treeWithTreasure = Math.floor(Math.random() * trees.length);
+
+    new TWEEN
+      .Tween({x:0})
+      .to({x: 2 * Math.PI}, 200)
+      .repeat(20)
+      .onUpdate(function () {
+        trees[treeWithTreasure].position.x = 75 * Math.sin(this.x);
+      })
+      .start();
+
+    setTimeout(shakeTree, 12* 1000);
+  };
 
   function isWalking () {
     return (
@@ -141,6 +182,74 @@
     return false;
   };
 
+  function animateFruit() {
+    if (fruit) return;
+    fruit = THREE.Mesh (
+      new THREE.CylinderGeometry(25,25,5,25),
+      new THREE.MeshBasicMaterial({color: 0xFFD700})
+    );
+    fruit.rotation.x = Math.PI/2;
+
+    marker.add(fruit);
+
+    new TWEEN.
+      Tween({
+        height : 150,
+        spin : 0
+      })
+      .to({
+        height : 250,
+        spin : 4
+      }, 500)
+      .onUpdate(function () {
+        fruit.position.y = this.height;
+        fruit.rotation.z = this.spin;
+      }).onComplete(function () {
+        marker.remove(fruit);
+        fruit = undefined;
+      }).start();
+  };
+
+  function scorePoints() {
+    if (scoreboard.getTimeRemaining() > 0) {
+      scoreboard.addPoints(10);
+      Sounds.bubble.play();
+      animateFruit();
+    }
+  };
+
+  function animateJump() {
+    new TWEEN.
+      Tween({ jump : 0})
+      .to({jump: Math.PI}, 500)
+      .onUpdate(function () {
+        marker.position.y = 200 * Math.sin(this.jump);
+      }).start();
+  };
+
+  function checkForTreasure() {
+    if (treeWithTreasure != undefined) {
+      var tree = trees[treeWithTreasure];
+      var p1 = tree.parent.position;
+      var p2 = marker.position;
+
+      var distance = Math.sqrt(
+        (p1.x - p2.x) * (p1.x - p2.x) +
+        (p1.z - p2.z) * (p1.z - p2.z)
+      );
+
+      if (distance < 500) {
+        scorePoints();
+      }
+    }
+
+  };
+
+  function jump() {
+    checkForTreasure();
+    animateJump();
+  };
+
   document.addEventListener('keydown', function (event) {
     var code = event.keyCode;
     if (code == 37) {
@@ -158,6 +267,9 @@
     if (code == 40) {
       marker.position.z = marker.position.z + 5; //backward
       isMovingBack = true;
+    }
+    if (code == 32) {
+      jump();
     }
 
     if (detectCollisions()) {
@@ -184,6 +296,8 @@
       isMovingBack = false;
     } 
   });
+
+  shakeTree();
 
   animate();
 
