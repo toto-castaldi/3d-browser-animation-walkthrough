@@ -184,7 +184,7 @@
 
   function animateFruit() {
     if (fruit) return;
-    fruit = THREE.Mesh (
+    fruit = new THREE.Mesh (
       new THREE.CylinderGeometry(25,25,5,25),
       new THREE.MeshBasicMaterial({color: 0xFFD700})
     );
@@ -212,6 +212,7 @@
 
   function scorePoints() {
     if (scoreboard.getTimeRemaining() > 0) {
+      shakeTree();
       scoreboard.addPoints(10);
       Sounds.bubble.play();
       animateFruit();
@@ -276,8 +277,8 @@
       console.log("collision");
       if (isMovingLeft) marker.position.x = marker.position.x + 5;
       if (isMovingRight) marker.position.x = marker.position.x - 5;
-      if (isMovingForward) marker.position.x = marker.position.z + 5;
-      if (isMovingBack) marker.position.x = marker.position.z - 5;
+      if (isMovingForward) marker.position.z = marker.position.z + 5;
+      if (isMovingBack) marker.position.z = marker.position.z - 5;
     }
   });
 
