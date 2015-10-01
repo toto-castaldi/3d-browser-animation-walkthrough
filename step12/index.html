@@ -1,0 +1,190 @@
+<body></body>
+<script src="http://gamingJS.com/Three.js"></script>
+<script src="http://gamingJS.com/Tween.js"></script>
+<script src="http://gamingJS.com/ChromeFixes.js"></script>
+<script>
+  function makeTreeAt(x, z) {
+    var trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(50, 50, 200),
+      new THREE.MeshBasicMaterial({ color : 0xA0522D})
+    );
+    var top = new THREE.Mesh(
+      new THREE.SphereGeometry(150),
+      new THREE.MeshBasicMaterial({ color : 0x22BB22})
+    );
+    var boundary = new THREE.Mesh(
+      new THREE.CircleGeometry(300),
+      new THREE.MeshNormalMaterial()
+    );
+    top.position.y = 175;
+    trunk.add(top);
+
+    trunk.position.set(x, -75, z);
+
+    boundary.position.y = -100;
+    boundary.rotation.x = - Math.PI/2;
+    trunk.add(boundary);
+
+    notAllowed.push(boundary);
+
+    scene.add(trunk);
+  };
+
+  // This is where stuff in our game will happen:
+  var scene = new THREE.Scene();
+
+  var clock = new THREE.Clock(true);
+
+  // This is what sees the stuff:
+  var aspect_ratio = window.innerWidth / window.innerHeight;
+  var camera = new THREE.PerspectiveCamera(75, aspect_ratio, 1, 10000);
+  camera.position.z = 500;
+
+  // This will draw what the camera sees onto the screen:
+  var renderer = new THREE.CanvasRenderer();
+  renderer.setSize(window.innerWidth -20, window.innerHeight -20);
+  document.body.appendChild(renderer.domElement);
+
+  // ******** START CODING ON THE NEXT LINE ********
+  var notAllowed = [];
+
+  var marker = new THREE.Object3D();
+
+  var cover = new THREE.MeshNormalMaterial();
+  var body = new THREE.SphereGeometry(100);
+  var hand = new THREE.SphereGeometry(50);
+  
+  var avatar = new THREE.Mesh(body, cover);
+  var rightHand = new THREE.Mesh(hand, cover);
+  var leftHand = new THREE.Mesh(hand, cover);
+  var rightFoot = new THREE.Mesh(hand, cover);
+  var leftFoot = new THREE.Mesh(hand, cover);
+
+  var isMovingLeft = false;
+  var isMovingRight = false;
+  var isMovingForward = false;
+  var isMovingBack = false;
+
+  rightHand.position.set(150,0,0);
+  leftHand.position.set(-150,0,0);
+  rightFoot.position.set(75,-125,0);
+  leftFoot.position.set(-75,-125,0);
+
+  scene.add(marker);
+  marker.add(avatar);
+  marker.add(camera);
+  avatar.add(rightHand);
+  avatar.add(leftHand);
+  avatar.add(rightFoot);
+  avatar.add(leftFoot);
+
+  makeTreeAt( 500, 0);
+  makeTreeAt( -500, 0);
+  makeTreeAt( 750, -1000);
+  makeTreeAt( -750, -1000);
+
+  function isWalking () {
+    return (
+      isMovingLeft ||
+      isMovingRight ||
+      isMovingForward ||
+      isMovingBack
+    );
+  };
+
+  function walk () {
+    if (isWalking()) {
+      var position = Math.sin(clock.getElapsedTime()*5) * 50;
+      rightHand.position.z = position;
+      leftHand.position.z = -position;
+      rightFoot.position.z = -position;
+      leftFoot.position.z = position;
+    }
+  };
+
+  function turn () {
+    var direction = 0;
+    if (isMovingForward) direction = Math.PI;
+    if (isMovingBack) direction = 0;
+    if (isMovingLeft) direction = - Math.PI / 2;
+    if (isMovingRight) direction = Math.PI / 2;
+
+    spinAvatar(direction);
+  };
+
+  function spinAvatar(direction) {
+    new TWEEN.
+      Tween({y: avatar.rotation.y}).
+      to({y: direction}, 100).
+      onUpdate(function () {
+        avatar.rotation.y = this.y;
+      }).
+      start();
+  };
+
+  function animate () {
+    requestAnimationFrame(animate);
+
+    TWEEN.update();
+
+    walk();
+    turn();
+  
+    renderer.render(scene, camera);
+  };
+
+  function detectCollisions() {
+    var vector = new THREE.Vector3(0, -1, 0);
+    var ray = new THREE.Ray(marker.position, vector);
+    var intersections = ray.intersectObjects(notAllowed);
+    if (intersections.length > 0) return true;
+    return false;
+  };
+
+  document.addEventListener('keydown', function (event) {
+    var code = event.keyCode;
+    if (code == 37) {
+      marker.position.x = marker.position.x - 5; //left
+      isMovingLeft = true;
+    }
+    if (code == 39) {
+      marker.position.x = marker.position.x + 5; //right
+      isMovingRight = true;
+    }
+    if (code == 38) {
+      marker.position.z = marker.position.z - 5; //forward
+      isMovingForward = true;
+    }
+    if (code == 40) {
+      marker.position.z = marker.position.z + 5; //backward
+      isMovingBack = true;
+    }
+
+    if (detectCollisions()) {
+      console.log("collision");
+      if (isMovingLeft) marker.position.x = marker.position.x + 5;
+      if (isMovingRight) marker.position.x = marker.position.x - 5;
+      if (isMovingForward) marker.position.z = marker.position.z + 5;
+      if (isMovingBack) marker.position.z = marker.position.z - 5;
+    }
+  });
+
+  document.addEventListener('keyup', function (event) {
+    var code = event.keyCode;
+    if (code == 37) {
+      isMovingLeft = false;
+    }
+    if (code == 39) {
+      isMovingRight = false;
+    }
+    if (code == 38) {
+      isMovingForward = false;
+    }
+    if (code == 40) {
+      isMovingBack = false;
+    } 
+  });
+
+  animate();
+
+</script>

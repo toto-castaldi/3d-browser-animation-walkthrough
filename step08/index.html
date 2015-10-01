@@ -1,0 +1,59 @@
+<body></body>
+<script src="http://gamingJS.com/Three.js"></script>
+<script src="http://gamingJS.com/ChromeFixes.js"></script>
+<script>
+  // This is where stuff in our game will happen:
+  var scene = new THREE.Scene();
+
+  // This is what sees the stuff:
+  var aspect_ratio = window.innerWidth / window.innerHeight;
+  var camera = new THREE.PerspectiveCamera(75, aspect_ratio, 1, 10000);
+  camera.position.z = 500;
+  scene.add(camera);
+
+  // This will draw what the camera sees onto the screen:
+  var renderer = new THREE.CanvasRenderer();
+  renderer.setSize(window.innerWidth -20, window.innerHeight -20);
+  document.body.appendChild(renderer.domElement);
+
+  // ******** START CODING ON THE NEXT LINE ********
+  var cover = new THREE.MeshNormalMaterial();
+  var body = new THREE.SphereGeometry(100);
+  var hand = new THREE.SphereGeometry(50);
+  
+  var avatar = new THREE.Mesh(body, cover);
+  var rightHand = new THREE.Mesh(hand, cover);
+  var leftHand = new THREE.Mesh(hand, cover);
+  var rightFoot = new THREE.Mesh(hand, cover);
+  var leftFoot = new THREE.Mesh(hand, cover);
+
+
+  rightHand.position.set(150,0,0);
+  leftHand.position.set(-150,0,0);
+  rightFoot.position.set(75,-125,0);
+  leftFoot.position.set(-75,-125,0);
+
+  scene.add(avatar);
+  avatar.add(rightHand);
+  avatar.add(leftHand);
+  avatar.add(rightFoot);
+  avatar.add(leftFoot);
+
+  function animate () {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+  }
+
+  document.addEventListener('keydown', function (event) {
+    var code = event.keyCode;
+    if (code == 37) avatar.position.x = avatar.position.x - 5; //left
+    if (code == 39) avatar.position.x = avatar.position.x + 5; //right
+    if (code == 38) avatar.position.z = avatar.position.z - 5; //forward
+    if (code == 40) avatar.position.z = avatar.position.z + 5; //backward 
+  });
+
+  animate();
+
+
+
+</script>
